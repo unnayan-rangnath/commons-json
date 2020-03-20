@@ -3,6 +3,9 @@ package com.scoperetail.commons.json.util;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 import java.io.IOException;
+import java.util.Optional;
+
+import org.springframework.objenesis.instantiator.basic.NewInstanceInstantiator;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,15 +22,14 @@ public class JsonUtils {
 
   static final ObjectMapper mapper = new ObjectMapper();
 
-  public static final <T> T unmarshal(final String message, TypeReference<T> typeReference)
+  public static final <T> T unmarshal(
+      final Optional<String> message, Optional<TypeReference<T>> typeReference)
       throws JsonParseException, JsonMappingException, IOException {
     T unmarshaledMessage = null;
-    if (null != typeReference && message != null) {
-      log.debug("Trying to unmarshal json message {} into {} type", message, typeReference);
-      unmarshaledMessage = mapper.readValue(message, typeReference);
-    } else {
-      throw new RuntimeException("Empty message or Type to deserialize");
-    }
+    log.debug("Trying to unmarshal json message {} into {} type", message, typeReference);
+    unmarshaledMessage =
+        mapper.readValue(
+            message.orElseThrow(IOException::new), typeReference.orElseThrow(IOException::new));
 
     return unmarshaledMessage;
   }
