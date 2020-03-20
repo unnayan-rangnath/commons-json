@@ -5,12 +5,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 import java.io.IOException;
 import java.util.Optional;
 
-import org.springframework.objenesis.instantiator.basic.NewInstanceInstantiator;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -23,23 +18,18 @@ public class JsonUtils {
   static final ObjectMapper mapper = new ObjectMapper();
 
   public static final <T> T unmarshal(
-      final Optional<String> message, Optional<TypeReference<T>> typeReference)
-      throws JsonParseException, JsonMappingException, IOException {
-    T unmarshaledMessage = null;
-    log.debug("Trying to unmarshal json message {} into {} type", message, typeReference);
-    unmarshaledMessage =
-        mapper.readValue(
-            message.orElseThrow(IOException::new), typeReference.orElseThrow(IOException::new));
-
-    return unmarshaledMessage;
+      final Optional<String> message, Optional<TypeReference<T>> typeReference) throws IOException {
+    String incomingMessage =
+        message.orElseThrow(() -> new IOException("Unable to unmarshal :: Message = null"));
+    TypeReference<T> incomingType =
+        typeReference.orElseThrow(() -> new IOException("Unable to unmarshal :: Type = null"));
+    log.debug("Trying to unmarshal json message {} into {} type", incomingMessage, incomingType);
+    return mapper.readValue(incomingMessage, incomingType);
   }
 
-  public static <E> String marshal(final E obj) throws JsonProcessingException {
-    String jsonValue = null;
-    if (null != obj) {
-      mapper.setSerializationInclusion(NON_NULL);
-      jsonValue = mapper.writeValueAsString(obj);
-    }
-    return jsonValue;
+  public static <E> String marshal(final Optional<E> obj) throws IOException {
+    mapper.setSerializationInclusion(NON_NULL);
+    return mapper.writeValueAsString(
+        obj.orElseThrow(() -> new IOException("Unable to marshal :: obj = null")));
   }
 }
