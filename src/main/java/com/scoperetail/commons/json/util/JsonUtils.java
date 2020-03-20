@@ -34,15 +34,11 @@ public class JsonUtils {
     return unmarshaledMessage;
   }
 
-  public static <E> String marshal(final E type) {
+  public static <E> String marshal(final E obj) throws JsonProcessingException {
     String jsonValue = null;
-    if (null != type) {
+    if (null != obj) {
       mapper.setSerializationInclusion(NON_NULL);
-      try {
-        jsonValue = mapper.writeValueAsString(type);
-      } catch (JsonProcessingException e) {
-        throw new RuntimeException("Empty JSON String: Object to Json transformation failed.");
-      }
+      jsonValue = mapper.writeValueAsString(obj);
     }
     return jsonValue;
   }
