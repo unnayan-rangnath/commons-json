@@ -1,4 +1,4 @@
-package com.scoperetail.commons.dto;
+package com.scoperetail.commons.json.dto;
 
 import java.util.List;
 

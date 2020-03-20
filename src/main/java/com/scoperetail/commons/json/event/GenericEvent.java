@@ -1,4 +1,4 @@
-package com.scoperetail.commons.event;
+package com.scoperetail.commons.json.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
