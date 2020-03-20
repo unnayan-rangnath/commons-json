@@ -1,0 +1,118 @@
+# Java Maven CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-java/ for more details
+#
+#
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/openjdk:8-jdk
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx3200m
+
+    steps:
+      - checkout
+      
+      - run: |
+            if [[ "$CIRCLE_BRANCH" != "master" ]]
+            then
+                text=`git log $CIRCLE_BRANCH --not origin/master --pretty=oneline --no-merges`
+                while read -r line; do
+                    output=`echo $line|grep -i "scoop-[0-9]\|[maven-release-plugin]\|[skip ci]"`
+                    if [[ $output ]]
+                    then
+                        echo "" > /dev/null
+                    else
+                        echo $line
+                        echo "No Jira id found for atleast one of the commits"
+                        exit 1
+                    fi
+                done <<< "$text"
+            fi
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v2-dependencies-{{ checksum "pom.xml" }}
+          # fallback to using the latest cache if no exact match is found
+          - v2-dependencies-
+
+      # run tests!
+      - run:
+          name: Test and Sonar Scan
+          command:  |
+            mvn integration-test sonar:sonar -Dspring.profiles.active=dev
+            
+      
+      - run:
+          name: Perform Maven Release
+          command:  |
+            if [[ "$CIRCLE_BRANCH" = "master" || "$CIRCLE_BRANCH" == *"HOTFIX-"* ]]
+            then
+                ADDITIONAL_PARAMS=""
+                if [[ "$CIRCLE_BRANCH" == *"HOTFIX-"* ]]
+                then
+                   ADDITIONAL_PARAMS="--set-upstream origin $CIRCLE_BRANCH"
+                fi
+                git config --global user.email "engg@scoperetail.com"
+                git config --global user.name "scoperetail"
+                mvn -s .circleci/.circleci.settings.xml -Darguments="-DskipTests -Dmaven.javadoc.skip=true" -B release:prepare release:perform
+                
+                git checkout $CIRCLE_BRANCH
+                tag2=`git tag --sort=-creatordate|head -n1`
+                tag1=`git tag --sort=-creatordate|head -n2|tail -n1`
+                if [[ $tag2 != $tag1 ]]
+                then
+                    git log --pretty=oneline $tag1..$tag2 --no-merges|grep -oi "scoop-[0-9]*"| tr '[:lower:]' '[:upper:]'| sort | uniq > content.txt
+                else
+                    git log --pretty=oneline $tag1 --no-merges|grep -oi "scoop-[0-9]*"| tr '[:lower:]' '[:upper:]'| sort | uniq > content.txt
+                fi
+                version=`echo $tag2|grep -io "\([0-9]\+\([.][0-9]\+\)\+\)"`
+                if [[ ! -f changes.txt ]]
+                then
+                   touch changes.txt
+                fi
+                
+                while read -r line; do
+                  #echo $line
+                  curl  -X GET -u pratikg@xpanxion.co.in:eddJpZyadHzICIsVpGgY02E4  \
+                  -H "Content-Type: application/json" "https://scoperetail.atlassian.net/rest/api/2/issue/$line?fields=summary,status" -o jira.json -s
+                  summary=`cat jira.json|jq '.fields.summary'|cut -d "\"" -f 2`
+                  status=`cat jira.json|jq '.fields.status.name'|cut -d "\"" -f 2`
+                  echo "$line: $summary ($status)" >> jira.txt
+                done <<< $(<content.txt)
+                echo $version > latests.txt
+                sed -e 's/^/ \* /' jira.txt >> latests.txt
+                cat latests.txt changes.txt > new_changes.txt
+                echo "" >> new_changes.txt
+                cat new_changes.txt > changes.txt
+                git add changes.txt  
+                git commit -m "[skip ci] changes.txt updated"
+                git push $ADDITIONAL_PARAMS
+            fi
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v2-dependencies-{{ checksum "pom.xml" }}
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+#      - test:
+#          requires:
+#            - build
+#          filters:
+#            branches:
+#              only: master

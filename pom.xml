@@ -1,0 +1,115 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.scoperetail</groupId>
+	<artifactId>commons-json</artifactId>
+	<version>0.1-SNAPSHOT</version>
+
+	<properties>
+		<sonar.host.url>http://scopesonar.centralus.cloudapp.azure.com</sonar.host.url>
+		<sonar.login>scopeoms</sonar.login>
+		<sonar.password>scopeoms</sonar.password>
+	</properties>
+
+	<scm>
+		<developerConnection>scm:git:git@github.com:scoperetail/commons-json.git</developerConnection>
+		<tag>commons-json-0.1</tag>
+	</scm>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+			<version>1.16.20</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-json</artifactId>
+			<version>2.0.1.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<repositories>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>jcenter-central</id>
+			<name>bintray-plugins</name>
+			<url>http://jcenter.bintray.com</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+
+		<repository>
+			<id>central</id>
+			<name>scope-artifactory-releases</name>
+			<url>http://scopeartifactory.centralus.cloudapp.azure.com/artifactory/maven-release</url>
+		</repository>
+		<repository>
+			<id>snapshots</id>
+			<name>scope-artifactory-snapshots</name>
+			<url>http://scopeartifactory.centralus.cloudapp.azure.com/artifactory/maven-snapshots</url>
+		</repository>
+
+		<repository>
+			<id>maven-central</id>
+			<name>maven</name>
+			<url>https://repo.maven.apache.org/maven2/</url>
+		</repository>
+	</repositories>
+
+	<distributionManagement>
+		<repository>
+			<id>central</id>
+			<name>scope-artifactory-releases</name>
+			<url>http://scopeartifactory.centralus.cloudapp.azure.com/artifactory/maven-release</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>scope-artifactory-snapshots</name>
+			<url>http://scopeartifactory.centralus.cloudapp.azure.com/artifactory/maven-snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<!-- CircleCI build workaround -->
+					<useSystemClassLoader>false</useSystemClassLoader>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+				<configuration>
+					<scmCommentPrefix>[skip ci]</scmCommentPrefix>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
