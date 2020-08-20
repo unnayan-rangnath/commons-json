@@ -16,4 +16,5 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EraserPayload {
   private List<Integer> orderIds;
+  private List<Integer> customerOrderIds;
 }
