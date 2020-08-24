@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.scoperetail</groupId>
 	<artifactId>commons-json</artifactId>
-	<version>0.2</version>
+	<version>0.3-SNAPSHOT</version>
 
 	<properties>
 		<sonar.host.url>http://scopesonar.centralus.cloudapp.azure.com</sonar.host.url>
@@ -12,7 +12,7 @@
 
 	<scm>
 		<developerConnection>scm:git:git@github.com:scoperetail/commons-json.git</developerConnection>
-		<tag>commons-json-0.2</tag>
+		<tag>commons-json-0.1</tag>
 	</scm>
 
 	<dependencies>
