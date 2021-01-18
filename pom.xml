@@ -11,7 +11,7 @@
 	</properties>
 
 	<scm>
-		<developerConnection>scm:git:git@github.com:scoperetail/commons-json.git</developerConnection>
+		<developerConnection>scm:git:git@github.com:cosmos-io/commons-json.git</developerConnection>
 		<tag>commons-json-0.1</tag>
 	</scm>
 
