@@ -1,7 +1,10 @@
+0.3
+ * SCOOP-13512: COSMOS-BOM and dependency management (In Progress)
 0.2
  * SCOOP-11752: Sharding - Converting Exception manager to the sharded components (In Progress)
 0.1
  * SCOOP-: null (null)
  * SCOOP-8437: Technical - To handle cases when the OrderIDs are deleted - Part 1 (In Progress)
+
 
 
